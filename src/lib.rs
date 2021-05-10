@@ -6,24 +6,45 @@ pub fn parse_string(string: &str) -> (Vec<f32>, Vec<&str>) {
     // it means "all directory" when used as argument
     let operator_regex = Regex::new(r"[+\-x/]").unwrap();
     // Find number
-    // TODO: Need regular expression to detect negative
-    //       number
     let number_regex = Regex::new(r"\d+").unwrap();
-    // Vector of detected operator
-    let mut operator = number_regex.split(string).collect::<Vec<&str>>();
-    // Clear empty string
-    operator = operator.drain(1..operator.len() - 1).collect();
     // Vector of detected number
     let mut value: Vec<f32> = Vec::new();
 
     // Convert number from &str to f32 then
     // push converted number to Vector
-    for i in operator_regex.split(string) {
+    for i in operator_regex.split(string){
         // TODO: Should not panic when error occured, it needs to
         //       exit cleanly or add clear error message
-        let number = i.parse::<f32>().expect("Failed to parse arguments");
+
+        // Skip empty value on some case
+        if i.is_empty() {
+            continue;
+        }
+
+        let number = i.parse::<f32>().unwrap_or_else(|err| {
+            println!("Problem parsing argument: {}", err);
+            std::process::exit(1);
+        });
         value.push(number);
     }
+
+    // Vector of detected operator
+    let mut operator = number_regex.split(string).collect::<Vec<&str>>();
+
+    // Detect whether first number is negative
+    if operator[0] == "-" {
+        value[0] = -value[0];
+    }
+    // Clear empty string
+    operator = operator.drain(1..operator.len() - 1).collect();
+
+    // Find negative value
+     for i in 0..operator.len() {
+         if operator[i].len() > 1 {
+             value[i+1] = -value[i+1];
+             operator[i] = &operator[i][..1];
+         }
+     }
 
     (value, operator)
 }
@@ -32,6 +53,8 @@ pub fn calculate(value: &mut Vec<f32>, operator: &mut Vec<&str>) -> f32 {
     let mut count = 0;
     let clone_operator = operator.clone();
     let mut iteration = clone_operator.iter();
+
+    //TODO: Need to support parentheses '()' to include in high priority
 
     // Iterate operator while it is not empty
     // to prevent out of bound error
