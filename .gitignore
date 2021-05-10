@@ -1,0 +1,9 @@
+# Folder
+debug/
+target/
+
+# File
+Cargo.lock
+*.sw*
+*.pdb
+**/*.rs.bk

@@ -1,0 +1,8 @@
+[package]
+name = "kalko"
+version = "0.1.0"
+authors = ["KY64 <taurus99@protonmail.com>"]
+edition = "2018"
+
+[dependencies]
+regex = "1.5"
