@@ -5,6 +5,8 @@ use math::operation::*;
 use parse::check_negative;
 use regex::Regex;
 
+//TODO: Refactor code
+
 pub fn parse_string(string: &str) -> (Vec<f32>, Vec<&str>) {
     // Find operator +, -, x, /, and parentheses '(', ')'
     // NOTE: Does not support '*' symbol for multiplication since
@@ -39,13 +41,11 @@ pub fn parse_string(string: &str) -> (Vec<f32>, Vec<&str>) {
         std::process::exit(1);
     });
 
-
     // Ignore and remove first negative operator as its
     // indicating the first value is negative
     if operator[0] == "-" {
         operator.remove(0);
     }
-
 
     (value, operator)
 }
@@ -54,8 +54,6 @@ pub fn calculate(value: Vec<f32>, operator: Vec<&str>) -> f32 {
     let mut clone_value: Vec<f32> = value.clone();
     let mut clone_operator: Vec<&str> = operator.clone();
 
-
-    // TODO: Need to support parentheses '()' to include in high priority
     if operator.iter().position(|x| x.contains("(")).is_some()
         && operator.iter().position(|x| x.contains(")")).is_some()
     {
@@ -83,7 +81,13 @@ pub fn calculate(value: Vec<f32>, operator: Vec<&str>) -> f32 {
                 break;
             }
 
-            if _end == _start + 1 {
+            // Prevent removing parentheses if there is
+            // multiple operator
+            // eg. ["(", ")/", ""] or ["/(", ")", ""]
+            // Those will be detected as empty parentheses
+            // but because there is '/' symbol, it will not be
+            // removed
+            if _end == _start + 1 && clone_operator[_start] == "(" && clone_operator[_end] == ")" {
                 clone_operator.drain(_start.._end + 1);
                 continue;
             }
@@ -101,7 +105,6 @@ pub fn calculate(value: Vec<f32>, operator: Vec<&str>) -> f32 {
                 truncated_value = clone_value[_start + 1.._end + 1].to_vec();
             }
             let mut truncated_operator: Vec<&str> = clone_operator[_start + 1.._end].to_vec();
-
 
             // In case there are nested parentheses
             // eg. (2+(3-2))
@@ -129,6 +132,7 @@ pub fn calculate(value: Vec<f32>, operator: Vec<&str>) -> f32 {
                     // _start+1 to skip parentheses inside truncated operator
                     truncated_operator = clone_operator.clone()[_start + 1.._end].to_vec();
                     truncated_value = clone_value.clone()[_start.._end].to_vec();
+
                     break;
                 } else {
                     break;
@@ -151,7 +155,8 @@ pub fn calculate(value: Vec<f32>, operator: Vec<&str>) -> f32 {
                 // will be placed on the index of 7 and
                 // the rest number inside parentheses will
                 // be removed.So the result is 2+10x2
-                if operator.len() == clone_operator.len() || clone_operator[_start] == "(" {
+                if operator.len() == clone_operator.len() || clone_operator[_start].starts_with("(")
+                {
                     clone_value.splice(_start.._end, [result].iter().cloned());
                 } else {
                     clone_value.splice(_start + 1.._end + 1, [result].iter().cloned());
@@ -175,7 +180,10 @@ pub fn calculate(value: Vec<f32>, operator: Vec<&str>) -> f32 {
                 // parentheses has been evaluated, it will be removed
                 // so the 0 index operator doesn't necessarily means the
                 // first parentheses
-                if (_start == 0 && _iteration == 1) || clone_operator[_start] == "(" {
+                if (_start == 0 && _iteration == 1)
+                    || (clone_operator[_start] == "(" && !clone_operator[_end].contains(")"))
+                {
+                    // if (_start == 0 && _iteration == 1) {
                     clone_operator.drain(_start.._end);
                 } else {
                     // Start+1 means it will ignore "(" position
@@ -187,12 +195,43 @@ pub fn calculate(value: Vec<f32>, operator: Vec<&str>) -> f32 {
                     clone_operator.drain(_start + 1.._end);
                 }
                 _iteration += 1;
-
-                if _iteration == 8 {
-                    break;
-                }
             }
         }
+    }
+
+    // Trim trailing parentheses
+    // eg. ((((1+2))))-2
+    // will get result [")))-"] as the last operator. While the value vector is
+    // [3.0, -2] so the operation should be evaluated to 3.0 - 2
+    // therefore additional trim is needed
+    if operator.iter().position(|x| x.contains("(")).is_some()
+        || operator.iter().position(|x| x.contains(")")).is_some()
+    {
+        let parentheses_regex = Regex::new(r"[()]").unwrap();
+        // Remove all dangling parentheses
+        // eg. [")))-", "x", "+"] becomes ["-", "x", "+"]
+        clone_operator = clone_operator
+            .iter()
+            .map(|op| {
+                if op.contains("(") || op.contains(")") {
+                    let mut tmp: Vec<&str> = parentheses_regex.split(*op).collect();
+                    // Clear empty value after splitting
+                    tmp = tmp.iter().filter(|y| !y.is_empty()).cloned().collect();
+                    // In case there's only 1 '(' or ')' where the
+                    // result would be empty vector, it will return
+                    // the original value
+                    if tmp.is_empty() {
+                        *op
+                    } else {
+                        // Return filtered operator
+                        tmp[0]
+                    }
+                } else {
+                    // Return original value if there is no parentheses
+                    *op
+                }
+            })
+            .collect();
     }
 
     // Clear empty string to speed up iteration
@@ -226,7 +265,6 @@ fn iterate_number(value: &mut Vec<f32>, operator: &mut Vec<&str>) -> Result<f32,
 
     let clone_operator = operator.clone();
     let mut iteration = clone_operator.iter();
-
 
     // Iterate operator while it is not empty
     // to prevent out of bound error

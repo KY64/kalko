@@ -12,6 +12,7 @@ pub fn check_negative<'a>(
     // it will keep iterating until "-(((-"
     let mut index = 0;
     loop {
+        // Prevent out of bound on value vector
         if value.get(index).is_none() {
             break;
         }

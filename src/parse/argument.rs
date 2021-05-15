@@ -16,6 +16,7 @@ pub fn parse_argument(arg: env::Args) -> String {
     // When writing formula with whitespace
     // eg: kalko 2 + 3 / 2
     else if arguments.len() > 2 {
+        // Empty string before concatenate with the new String object
         parsed_argument.clear();
         // Concate all arguments into String object
         for (count, string) in (arguments.iter()).enumerate() {
