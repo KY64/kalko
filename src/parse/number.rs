@@ -1,12 +1,7 @@
 pub fn check_negative<'a>(
     value: &'a mut Vec<f32>,
     operator: &'a mut Vec<&str>,
-) -> Result<(), String> {
-    if value.is_empty() {
-        return Err(String::from("Value vector is empty!"));
-    } else if operator.is_empty() {
-        return Err(String::from("Operator vector is empty!"));
-    }
+) {
 
     // Detect whether first number is negative
     // it will keep iterating until "-(((-"
@@ -17,7 +12,11 @@ pub fn check_negative<'a>(
             break;
         }
 
-        if operator[index].ends_with("-") && !operator[index].starts_with(")") {
+        // Ignore if the preceeding operator is ')'
+        // eg. 10+(9-2)-3
+        // where '3' is not negative number therefore
+        // ')-' is ignored
+        if operator[index].ends_with("-") && !operator[index].ends_with(")-") {
             if index == 0 || operator[index].len() > 1 {
                 value[index] = -value[index];
             }
@@ -35,6 +34,4 @@ pub fn check_negative<'a>(
             index += 1;
         }
     }
-
-    Ok(())
 }

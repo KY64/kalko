@@ -2,11 +2,11 @@
 
 Kalko is a command-line based calculator with unit conversion feature. Kalko is short for "KALkulator" and "KOnversi" which means calculator + conversion. The conversion feature is a unit conversion such as *kilogram*(kg) to *gram*(g), *mile* to *kilometer*(km), etc.
 
-> **Note**: This project is only a playground for me to learn Rust programming language.
+> **Note**: This project is only a playground for me to learn Rust programming language so there might be unstable feature. You're welcome to experiment
 
 ## Features
 
-- [ ] Basic math operation [In progress :wrench:]
+- [x] Basic math operation
   
   - add (`+`)
   
@@ -16,7 +16,7 @@ Kalko is a command-line based calculator with unit conversion feature. Kalko is 
   
   - divide (`/`)
 
-- [ ] Unit conversion
+- [ ] Unit conversion [In progress :wrench:]
   
   - distance
   
@@ -34,10 +34,12 @@ kalko [expression]
 
 ### Inspiration
 
-* [Frink](https://frinklang.org/#HowFrinkIsDifferent)
-
-* [Plasma/Krunner](https://userbase.kde.org/Plasma/Krunner#Calculator)
+* [bc](https://www.gnu.org/software/bc/)
 
 * [alfredxing/calc](https://github.com/alfredxing/calc)
 
-* [bc](https://www.gnu.org/software/bc/)
+* [NerdyPepper/eva](https://github.com/NerdyPepper/eva)
+
+* [Frink](https://frinklang.org/#HowFrinkIsDifferent)
+
+* [Plasma/Krunner](https://userbase.kde.org/Plasma/Krunner#Calculator)

@@ -1,8 +1,8 @@
 mod math;
 pub mod parse;
 
-use math::operation::*;
-use parse::check_negative;
+use math::operation::{iterate_number};
+use parse::{parse_math_operation};
 use regex::Regex;
 
 //TODO: Refactor code
@@ -11,43 +11,18 @@ pub fn parse_string(string: &str) -> (Vec<f32>, Vec<&str>) {
     // Find operator +, -, x, /, and parentheses '(', ')'
     // NOTE: Does not support '*' symbol for multiplication since
     // it means "all directory" when used as argument
-    let operator_regex = Regex::new(r"[+\-x/()]").unwrap();
-    // Find number
-    let number_regex = Regex::new(r"\d+").unwrap();
-    // Vector of detected number
-    let mut value: Vec<f32> = Vec::new();
+    let math_operation = Regex::new(r"(-?\d+[+/x\-](-)*\d+)+|(\(-?\d+[+/x\-](-)*\d+\))+").unwrap();
 
-    // Convert number from &str to f32 then
-    // push converted number to Vector
-    for i in operator_regex.split(string) {
-        // Skip empty value on some case
-        if i.is_empty() {
-            continue;
-        }
-
-        let number = i.parse::<f32>().unwrap_or_else(|err| {
-            eprintln!("Problem parsing argument: {}", err);
+    if math_operation.is_match(string) {
+        // It will return tuple (operator, value)
+        return parse_math_operation(string).unwrap_or_else(|err| {
+            eprintln!("{}", err);
             std::process::exit(1);
         });
-        value.push(number);
-    }
-
-    // Vector of detected operator
-    let mut operator = number_regex.split(string).collect::<Vec<&str>>();
-
-    // Detect whether number is negative
-    check_negative(&mut value, &mut operator).unwrap_or_else(|err| {
-        eprintln!("{}", err);
+    } else {
+        eprintln!("Unrecognized argument. Try run kalko --help");
         std::process::exit(1);
-    });
-
-    // Ignore and remove first negative operator as its
-    // indicating the first value is negative
-    if operator[0] == "-" {
-        operator.remove(0);
     }
-
-    (value, operator)
 }
 
 pub fn calculate(value: Vec<f32>, operator: Vec<&str>) -> f32 {
@@ -183,7 +158,6 @@ pub fn calculate(value: Vec<f32>, operator: Vec<&str>) -> f32 {
                 if (_start == 0 && _iteration == 1)
                     || (clone_operator[_start] == "(" && !clone_operator[_end].contains(")"))
                 {
-                    // if (_start == 0 && _iteration == 1) {
                     clone_operator.drain(_start.._end);
                 } else {
                     // Start+1 means it will ignore "(" position
@@ -246,81 +220,4 @@ pub fn calculate(value: Vec<f32>, operator: Vec<&str>) -> f32 {
         eprintln!("{}", err);
         std::process::exit(1);
     })
-}
-
-fn iterate_number(value: &mut Vec<f32>, operator: &mut Vec<&str>) -> Result<f32, String> {
-    let mut index = 0;
-
-    if let Some(x) = operator.first() {
-        if *x == "(" {
-            operator.remove(0);
-        }
-    }
-
-    if let Some(x) = operator.last() {
-        if *x == ")" {
-            operator.remove(operator.len() - 1);
-        }
-    }
-
-    let clone_operator = operator.clone();
-    let mut iteration = clone_operator.iter();
-
-    // Iterate operator while it is not empty
-    // to prevent out of bound error
-    while !operator.is_empty() {
-        let symbol = match iteration.next() {
-            Some(x) => x,
-            _ => break,
-        };
-
-        if operator.iter().position(|x| x.contains("x")).is_some()
-            || operator.iter().position(|x| x.contains("/")).is_some()
-        {
-            // Get operator from vector then unwrap
-            // to get the value
-            match *symbol {
-                "x" => {
-                    multiply(index, value, operator);
-                    // Run iterate_number again to check whether there is any
-                    // operator left
-                    iterate_number(value, operator).expect("Operation incomplete!");
-                }
-                "/" => {
-                    divide(index, value, operator);
-                    iterate_number(value, operator).expect("Operation incomplete!");
-                }
-                _ => {
-                    index += 1;
-                    continue;
-                } // Skip the rest part to make sure
-                  // the * and / operator are evaluated first
-            };
-        } else if operator.iter().position(|x| x.contains("+")).is_some()
-            || operator.iter().position(|x| x.contains("-")).is_some()
-        {
-            match *symbol {
-                "+" => {
-                    sum(index, value, operator);
-                    iterate_number(value, operator).expect("Operation incomplete!");
-                }
-                "-" => {
-                    substract(index, value, operator);
-                    iterate_number(value, operator).expect("Operation incomplete!");
-                }
-                _ => {
-                    index += 1;
-                    continue;
-                }
-            };
-        } else {
-            break;
-        }
-    }
-    // Return the result of operation
-    if value.len() == 1 {
-        Ok(value[0])
-    } else {
-        Err(format!("Operation incomplete! {:?}", value))
-    }
 }
