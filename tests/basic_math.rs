@@ -1,6 +1,6 @@
 use kalko::*;
 
-fn evaluate(problems: [(&str, f32); 8]) {
+fn evaluate(problems: [(&str, f32); 10]) {
     let mut count = 0;
     while count < problems.len() {
         let (value, operator) = parse_string(problems[count].0);
@@ -11,7 +11,7 @@ fn evaluate(problems: [(&str, f32); 8]) {
 
 #[test]
 fn basic_operation() {
-    const PROBLEMS: [(&str, f32); 8] = [
+    const PROBLEMS: [(&str, f32); 10] = [
         ("1+1", 2.0),
         ("1-4", -3.0),
         ("4x19", 76.0),
@@ -20,6 +20,8 @@ fn basic_operation() {
         ("6/3x2", 4.0),
         ("2-2x4+3/2", -4.5),
         ("10/2+3-1x10", -2.0),
+        ("10+9/3+1-18x4-10+111-99x2", -155.0),
+        ("11x2/3+10/3x100-100+43/32-10+1x2/13-19+213", 426.16425),
     ];
 
     evaluate(PROBLEMS);
@@ -27,7 +29,7 @@ fn basic_operation() {
 
 #[test]
 fn negative_value() {
-    const PROBLEMS: [(&str, f32); 8] = [
+    const PROBLEMS: [(&str, f32); 10] = [
         ("1+-1", 0.0),
         ("1--4", 5.0),
         ("-4x19", -76.0),
@@ -36,6 +38,11 @@ fn negative_value() {
         ("-6/-3x-2", -4.0),
         ("2-2x4+-3/2", -7.5),
         ("10/2+3-1x-10", 18.0),
+        ("1--1-2----10--------20------19+-10/2-2x18", 8.0),
+        (
+            "-10/-2+-10--12x-19+-13/-21--12--13+-19x-31/31+1",
+            -187.38095,
+        ),
     ];
 
     evaluate(PROBLEMS);
@@ -43,15 +50,17 @@ fn negative_value() {
 
 #[test]
 fn parentheses() {
-    const PROBLEMS: [(&str, f32); 8] = [
+    const PROBLEMS: [(&str, f32); 10] = [
         ("1+(-1+2)", 2.0),
         ("(2-1)-4", -3.0),
         ("4x(19+3)", 88.0),
         ("1/(1x2)", 0.5),
-        ("10x(2--6)", 80.0),
+        ("(-2-2)x(4+3)/2", -14.0),
         ("(-2-2)x4+3/2", -14.5),
         ("-(-2-2)x4+3/2", 17.5),
         ("10/(2+3-1)x10", 25.0),
+        ("(10+2)x2/10-10+(2-90)", -95.6),
+        ("(1+2+(3-10)x2)+10-(19+20)/3+((10-2)-3/3x4)", -10.0),
     ];
 
     evaluate(PROBLEMS);

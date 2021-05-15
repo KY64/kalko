@@ -1,9 +1,9 @@
 pub fn multiply(index: usize, value: &mut Vec<f32>, operator: &mut Vec<&str>) {
     // Prevent out of bound when operator and value
     // has the same length
-    let i: usize = match value.get(index+1) {
+    let i: usize = match value.get(index + 1) {
         Some(_) => index,
-        _ => index-1
+        _ => index - 1,
     };
 
     // Replace current index value with result of operation
@@ -17,9 +17,9 @@ pub fn multiply(index: usize, value: &mut Vec<f32>, operator: &mut Vec<&str>) {
 pub fn divide(index: usize, value: &mut Vec<f32>, operator: &mut Vec<&str>) {
     // Prevent out of bound when operator and value
     // has the same length
-    let i: usize = match value.get(index+1) {
+    let i: usize = match value.get(index + 1) {
         Some(_) => index,
-        _ => index-1
+        _ => index - 1,
     };
 
     // Replace current index value with result of operation
@@ -33,9 +33,9 @@ pub fn divide(index: usize, value: &mut Vec<f32>, operator: &mut Vec<&str>) {
 pub fn sum(index: usize, value: &mut Vec<f32>, operator: &mut Vec<&str>) {
     // Prevent out of bound when operator and value
     // has the same length
-    let i: usize = match value.get(index+1) {
+    let i: usize = match value.get(index + 1) {
         Some(_) => index,
-        _ => index-1
+        _ => index - 1,
     };
 
     // Replace current index value with result of operation
@@ -49,9 +49,9 @@ pub fn sum(index: usize, value: &mut Vec<f32>, operator: &mut Vec<&str>) {
 pub fn substract(index: usize, value: &mut Vec<f32>, operator: &mut Vec<&str>) {
     // Prevent out of bound when operator and value
     // has the same length
-    let i: usize = match value.get(index+1) {
+    let i: usize = match value.get(index + 1) {
         Some(_) => index,
-        _ => index-1
+        _ => index - 1,
     };
 
     // Replace current index value with result of operation

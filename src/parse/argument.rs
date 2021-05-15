@@ -1,7 +1,11 @@
 use std::env;
 
-pub fn parse_argument() -> String {
-    let arguments: Vec<String> = env::args().collect();
+pub fn parse_argument(arg: env::Args) -> String {
+    let arguments: Vec<String> = arg.collect();
+    if let Some(_) = arguments.iter().position(|x| x.contains("*")) {
+        eprintln!("Problem parsing argument: try replace '*' with 'x' for multiplication");
+        std::process::exit(1);
+    }
     let mut parsed_argument: String = arguments[0].clone();
 
     // When writing formula without whitespace
