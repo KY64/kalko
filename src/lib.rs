@@ -1,31 +1,84 @@
 mod math;
 pub mod parse;
 
-use math::operation::{iterate_number};
-use parse::{parse_math_operation};
-use regex::Regex;
+use math::operation::iterate_number;
+use math::conversion::convert;
+use parse::argument::parse_math_operation;
+use parse::string::{
+    is_conversion, is_math_operation, is_measurement, is_number, parsing, Kind,
+};
+
+pub enum Operation {
+    Calculation,
+    Conversion,
+}
 
 //TODO: Refactor code
 
-pub fn parse_string(string: &str) -> (Vec<f32>, Vec<&str>) {
+pub fn parse_string(string: &str) -> Operation {
     // Find operator +, -, x, /, and parentheses '(', ')'
     // NOTE: Does not support '*' symbol for multiplication since
     // it means "all directory" when used as argument
-    let math_operation = Regex::new(r"(-?\d+[+/x\-](-)*\d+)+|(\(-?\d+[+/x\-](-)*\d+\))+").unwrap();
-
-    if math_operation.is_match(string) {
-        // It will return tuple (operator, value)
-        return parse_math_operation(string).unwrap_or_else(|err| {
-            eprintln!("{}", err);
-            std::process::exit(1);
-        });
+    if is_math_operation(string) {
+        Operation::Calculation
+    } else if is_conversion(string) {
+        Operation::Conversion
     } else {
         eprintln!("Unrecognized argument. Try run kalko --help");
         std::process::exit(1);
     }
 }
 
-pub fn calculate(value: Vec<f32>, operator: Vec<&str>) -> f32 {
+pub fn conversion(string: &str) -> f32 {
+    let mut argument: Vec<&str> = string.split(" ").collect();
+    // Remove empty value
+    argument = argument.iter().filter(|x| !x.is_empty()).cloned().collect();
+    let mut amount: f32;
+    let from: &str;
+    let to: &str;
+
+    if is_number(argument[0]) {
+        // Convert &str to f32
+        amount = argument[0].parse().unwrap();
+        from = argument[1];
+        to = argument[2];
+    } else if is_measurement(argument[0]) {
+        // Capture number from string
+        // eg. "2kg" -> "2"
+        //     "29km3" -> "29"
+        let number = parsing(Kind::Number)
+            .captures(argument[0])
+            .unwrap()
+            .get(0)
+            .unwrap()
+            .as_str();
+        
+        // Convert &str to f32
+        amount = number.parse().unwrap();
+        // Capture unit from string
+        // eg. "2kg" -> "kg"
+        //     "29km3" -> "km3"
+        from = parsing(Kind::Unit)
+            .captures(argument[0])
+            .unwrap()
+            .get(0)
+            .unwrap()
+            .as_str();
+        to = argument[1];
+    } else {
+        eprintln!("Unrecognized format");
+        std::process::exit(1);
+    }
+
+    let result = convert(&mut amount, from, to);
+    return result;
+}
+
+pub fn calculate(string: &str) -> f32 {
+    let (value, operator) = parse_math_operation(string).unwrap_or_else(|err| {
+        eprintln!("{}", err);
+        std::process::exit(1);
+    });
     let mut clone_value: Vec<f32> = value.clone();
     let mut clone_operator: Vec<&str> = operator.clone();
 
@@ -181,7 +234,7 @@ pub fn calculate(value: Vec<f32>, operator: Vec<&str>) -> f32 {
     if operator.iter().position(|x| x.contains("(")).is_some()
         || operator.iter().position(|x| x.contains(")")).is_some()
     {
-        let parentheses_regex = Regex::new(r"[()]").unwrap();
+        let parentheses_regex = parsing(Kind::Parentheses);
         // Remove all dangling parentheses
         // eg. [")))-", "x", "+"] becomes ["-", "x", "+"]
         clone_operator = clone_operator
@@ -216,8 +269,11 @@ pub fn calculate(value: Vec<f32>, operator: Vec<&str>) -> f32 {
         .collect();
 
     // Start iteration to evaluate number
-    iterate_number(&mut clone_value, &mut clone_operator).unwrap_or_else(|err| {
+    let result: f32 = iterate_number(&mut clone_value, &mut clone_operator).unwrap_or_else(|err| {
         eprintln!("{}", err);
         std::process::exit(1);
-    })
+    });
+
+    println!("Result: {}", result);
+    result
 }

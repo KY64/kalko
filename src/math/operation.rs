@@ -13,9 +13,6 @@ pub fn iterate_number(value: &mut Vec<f32>, operator: &mut Vec<&str>) -> Result<
         }
     }
 
-    println!("operator {:?}", operator);
-    println!("value {:?}", value);
-
     let clone_operator = operator.clone();
     let mut iteration = clone_operator.iter();
 
@@ -38,11 +35,11 @@ pub fn iterate_number(value: &mut Vec<f32>, operator: &mut Vec<&str>) -> Result<
                     // Run iterate_number again to check whether there is any
                     // operator left
                     iterate_number(value, operator).expect("Operation incomplete!");
-                },
+                }
                 "/" => {
                     divide(index, value, operator);
                     iterate_number(value, operator).expect("Operation incomplete!");
-                },
+                }
                 _ => {
                     index += 1;
                     continue;
@@ -56,11 +53,11 @@ pub fn iterate_number(value: &mut Vec<f32>, operator: &mut Vec<&str>) -> Result<
                 "+" => {
                     sum(index, value, operator);
                     iterate_number(value, operator).expect("Operation incomplete!");
-                },
+                }
                 "-" => {
                     substract(index, value, operator);
                     iterate_number(value, operator).expect("Operation incomplete!");
-                },
+                }
                 _ => {
                     index += 1;
                     continue;

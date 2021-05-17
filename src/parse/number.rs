@@ -1,8 +1,4 @@
-pub fn check_negative<'a>(
-    value: &'a mut Vec<f32>,
-    operator: &'a mut Vec<&str>,
-) {
-
+pub fn check_negative<'a>(value: &'a mut Vec<f32>, operator: &'a mut Vec<&str>) {
     // Detect whether first number is negative
     // it will keep iterating until "-(((-"
     let mut index = 0;

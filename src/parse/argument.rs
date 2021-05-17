@@ -1,6 +1,6 @@
-use std::env;
-use regex::Regex;
 use crate::parse::number::check_negative;
+use crate::parse::string::{is_unit, parsing, Kind};
+use std::env;
 
 pub fn parse_argument(arg: env::Args) -> String {
     let arguments: Vec<String> = arg.collect();
@@ -25,21 +25,28 @@ pub fn parse_argument(arg: env::Args) -> String {
             // Skip first argument since it's the command
             // to execute program
             if count != 0 {
-                parsed_argument += string;
+                if is_unit(string) {
+                    // Add whitespace for unit measurement for convenience
+                    // parsing
+                    parsed_argument += format!(" {}", string).as_str();
+                } else {
+                    parsed_argument += string;
+                }
             }
         }
     }
 
-    parsed_argument
+    // Remove trailing whitespace
+    parsed_argument.trim().to_string()
 }
 
 pub fn parse_math_operation(string: &str) -> Result<(Vec<f32>, Vec<&str>), String> {
     // Find operator +, -, x, /, and parentheses '(', ')'
     // NOTE: Does not support '*' symbol for multiplication since
     // it means "all directory" when used as argument
-    let operator_regex = Regex::new(r"[+\-x/()]").unwrap();
+    let operator_regex = parsing(Kind::Operator);
     // Find number
-    let number_regex = Regex::new(r"\d+").unwrap();
+    let number_regex = parsing(Kind::Number);
     // Vector of detected number
     let mut value: Vec<f32> = Vec::new();
 
@@ -60,14 +67,14 @@ pub fn parse_math_operation(string: &str) -> Result<(Vec<f32>, Vec<&str>), Strin
 
     if value.is_empty() {
         return Err(String::from("Value vector is empty!"));
-    } 
+    }
 
     // Vector of detected operator
     let mut operator = number_regex.split(string).collect::<Vec<&str>>();
 
     if operator.is_empty() {
-            return Err(String::from("Operator vector is empty!"));
-        }
+        return Err(String::from("Operator vector is empty!"));
+    }
 
     // Detect whether number is negative
     check_negative(&mut value, &mut operator);

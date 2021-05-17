@@ -1,10 +1,9 @@
 use kalko::*;
 
-fn evaluate(problems: [(&str, f32); 10]) {
+pub fn evaluate(problems: [(&str, f32); 10]) {
     let mut count = 0;
     while count < problems.len() {
-        let (value, operator) = parse_string(problems[count].0);
-        assert_eq!(calculate(value, operator), problems[count].1);
+        assert_eq!(calculate(problems[count].0), problems[count].1);
         count += 1;
     }
 }
