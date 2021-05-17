@@ -1,6 +1,8 @@
 pub fn iterate_number(value: &mut Vec<f32>, operator: &mut Vec<&str>) -> Result<f32, String> {
     let mut index = 0;
 
+    // Remove parentheses because it's already
+    // processed on calculate function
     if let Some(x) = operator.first() {
         if *x == "(" {
             operator.remove(0);

@@ -1,0 +1,12 @@
+# Folder
+debug/
+target/
+.git/
+
+# File
+Cargo.lock
+.gitignore
+*.md
+*.sw*
+*.pdb
+**/*.rs.bk

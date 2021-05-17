@@ -6,8 +6,8 @@ pub enum Kind {
     Conversion,  // Unit conversion eg. "1m miles", "10 kg gram"
     Math,        // Basic math operation eg. "1+3-(10x3)/3"
     Measurement, // Measurement unit eg. "1m", "2 kg3"
-    Number,
-    NumberOnly,
+    Number, // To detect number that mixed with other character
+    NumberOnly, // To detect number without any other character
     Operator, // Math operator "+", "-", "x", "/"
     Parentheses,
     Unit, // "kg", "mm", "m3"
