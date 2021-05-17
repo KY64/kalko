@@ -9,6 +9,4 @@ fn main() {
         Operation::Calculation => calculate(&arguments),
         Operation::Conversion => conversion(&arguments)
     };
-
-    assert_eq!(conversion("1m m"), 1.0);
 }

@@ -44,7 +44,6 @@ pub fn pound(string: &str) -> Option<Unit> {
 
 
 pub fn ounce(string: &str) -> Option<Unit> {
-    println!("is feet");
     create_unit(
         string,
         Ounce,

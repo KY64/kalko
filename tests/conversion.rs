@@ -26,3 +26,22 @@ fn length_conversion() {
     
     evaluate(PROBLEMS);
 }
+
+#[test]
+fn weight_conversion() {
+    
+    const PROBLEMS: [(&str, f32); 10] = [
+        ("1g g", 1.0),
+        ("10kg g", 10000.0),
+        ("1 g lb", 0.0022046226),
+        ("27mg lb", 0.000059524806),
+        ("0.23mg kg", 0.00000023),
+        ("921oz lb", 57.5625),
+        ("10 lb oz", 160.0),
+        ("10.9 gram oz", 0.38448617),
+        ("132.990 milligram dg", 1.3299),
+        ("31 lb kilogram", 14.061363),
+    ];
+    
+    evaluate(PROBLEMS);
+}
