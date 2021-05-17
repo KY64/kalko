@@ -1,12 +1,10 @@
 mod math;
 pub mod parse;
 
-use math::operation::iterate_number;
 use math::conversion::convert;
+use math::operation::iterate_number;
 use parse::argument::parse_math_operation;
-use parse::string::{
-    is_conversion, is_math_operation, is_measurement, is_number, parsing, Kind,
-};
+use parse::string::{is_conversion, is_math_operation, is_measurement, is_number, parsing, Kind};
 
 pub enum Operation {
     Calculation,
@@ -24,7 +22,18 @@ pub fn parse_string(string: &str) -> Operation {
     } else if is_conversion(string) {
         Operation::Conversion
     } else {
-        eprintln!("Unrecognized argument. Try run kalko --help");
+        eprintln!(
+            "
+Unrecognized argument.
+Try run
+
+kalko [number][+ - / x][number]
+eg. kalko 2+3x4
+
+kalko [number][unit measurement][unit measurement]
+eg. kalko 1 mile meter
+"
+        );
         std::process::exit(1);
     }
 }
@@ -33,15 +42,24 @@ pub fn conversion(string: &str) -> f32 {
     let mut argument: Vec<&str> = string.split(" ").collect();
     // Remove empty value
     argument = argument.iter().filter(|x| !x.is_empty()).cloned().collect();
+
     let mut amount: f32;
     let from: &str;
     let to: &str;
 
+    // When first argument is number
+    // eg. kalko 2 meter mile
+    // there are 3 arguments
     if is_number(argument[0]) {
         // Convert &str to f32
         amount = argument[0].parse().unwrap();
         from = argument[1];
         to = argument[2];
+
+    // When first argument is combination
+    // of number and character
+    // eg. kalko 3kg pound
+    // there are 2 arguments
     } else if is_measurement(argument[0]) {
         // Capture number from string
         // eg. "2kg" -> "2"
@@ -52,7 +70,7 @@ pub fn conversion(string: &str) -> f32 {
             .get(0)
             .unwrap()
             .as_str();
-        
+
         // Convert &str to f32
         amount = number.parse().unwrap();
         // Capture unit from string
@@ -64,24 +82,36 @@ pub fn conversion(string: &str) -> f32 {
             .get(0)
             .unwrap()
             .as_str();
+
         to = argument[1];
     } else {
         eprintln!("Unrecognized format");
         std::process::exit(1);
     }
 
+    // There are alternative ways to write these lines
+    // either running convert function without ;
+    // or add '*amount' variable after running
+    // convert function.
+    //
+    // Both are doable but this way is more readable
     let result = convert(&mut amount, from, to);
     return result;
 }
 
 pub fn calculate(string: &str) -> f32 {
+    // Get value and operator from math operation
     let (value, operator) = parse_math_operation(string).unwrap_or_else(|err| {
         eprintln!("{}", err);
         std::process::exit(1);
     });
+
+    // Clone vector since they will be modified so it's
+    // better to keep the origin as a reference
     let mut clone_value: Vec<f32> = value.clone();
     let mut clone_operator: Vec<&str> = operator.clone();
 
+    // Find parentheses
     if operator.iter().position(|x| x.contains("(")).is_some()
         && operator.iter().position(|x| x.contains(")")).is_some()
     {
@@ -109,11 +139,11 @@ pub fn calculate(string: &str) -> f32 {
                 break;
             }
 
-            // Prevent removing parentheses if there is
+            // Prevent removing parentheses if there are
             // multiple operator
             // eg. ["(", ")/", ""] or ["/(", ")", ""]
             // Those will be detected as empty parentheses
-            // but because there is '/' symbol, it will not be
+            // but because there is a '/' symbol, it will not be
             // removed
             if _end == _start + 1 && clone_operator[_start] == "(" && clone_operator[_end] == ")" {
                 clone_operator.drain(_start.._end + 1);
@@ -126,7 +156,7 @@ pub fn calculate(string: &str) -> f32 {
             // changing the original vector as it will be
             // replaced with the new value
             let mut truncated_value: Vec<f32> = clone_value[_start.._end].to_vec();
-            // If there is nested parentheses, make sure that
+            // If there are nested parentheses, make sure that
             // the first operator is not start with '(' so the
             // truncated value is align with operator
             if operator.len() > clone_operator.len() && !clone_operator[0].starts_with("(") {
@@ -182,7 +212,7 @@ pub fn calculate(string: &str) -> f32 {
                 // the result will be 10. The result then
                 // will be placed on the index of 7 and
                 // the rest number inside parentheses will
-                // be removed.So the result is 2+10x2
+                // be removed. So the result is 2+10x2
                 if operator.len() == clone_operator.len() || clone_operator[_start].starts_with("(")
                 {
                     clone_value.splice(_start.._end, [result].iter().cloned());

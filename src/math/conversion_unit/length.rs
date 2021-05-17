@@ -1,14 +1,24 @@
-use crate::math::conversion_unit::{create_unit, relative_unit, Category, PowerBy, Unit, UnitMeasurement};
+use crate::math::conversion_unit::{
+    create_unit, relative_unit, Category, PowerBy, Unit, UnitMeasurement,
+};
 use Category::*;
 use UnitMeasurement::*;
 
-
 // NOTE:
-// All unit is converted from Kilo-xxxx
-// eg. 1 Kilometer to 1 Miles = 0.6213712
-//     1 Miles to 1 Kilometer = 1.609344
-// so use the relative_unit function as follows
-// relative_unit(UnitMeasurement, conversion_result)
+// 7 parameters of create_unit function are
+//
+// 1. source input
+// 2. base unit measurement from UnitMeasurement enum
+// 3. category of the unit from Category enum
+// 4. abbreviation of the unit
+// 5. name of the unit
+// 6. the supported unit conversion
+// 7. whether it is single unit, means there are no prefix
+//    such as kilo, centi, deca
+//    eg. Mile, Pound
+//
+//    if it is single unit, then automatically has Kilo
+//    as prefix by default
 
 pub fn meter(string: &str) -> Option<Unit> {
     create_unit(
@@ -24,6 +34,17 @@ pub fn meter(string: &str) -> Option<Unit> {
         ],
         false,
     )
+    // relative_unit is a function to create struct
+    // of RelativeUnit which has property needed
+    // to help the conversion process
+    //
+    // relative_unit consist of 3 parameters
+    //
+    // 1. base unit
+    // 2. conversion value
+    // 3. step
+    //    eg. Kilometer to Hectometer is multiply by 10
+    //        so every step is powered by 10
 }
 
 pub fn mile(string: &str) -> Option<Unit> {
@@ -42,9 +63,7 @@ pub fn mile(string: &str) -> Option<Unit> {
     )
 }
 
-
 pub fn feet(string: &str) -> Option<Unit> {
-    println!("is feet");
     create_unit(
         string,
         Feet,

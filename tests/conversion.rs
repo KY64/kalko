@@ -10,7 +10,6 @@ pub fn evaluate(problems: [(&str, f32); 10]) {
 
 #[test]
 fn length_conversion() {
-    
     const PROBLEMS: [(&str, f32); 10] = [
         ("1m m", 1.0),
         ("10km m", 10000.0),
@@ -23,13 +22,12 @@ fn length_conversion() {
         ("132.990 millimeter dm", 1.3299),
         ("31 mile kilometer", 49.889664),
     ];
-    
+
     evaluate(PROBLEMS);
 }
 
 #[test]
 fn weight_conversion() {
-    
     const PROBLEMS: [(&str, f32); 10] = [
         ("1g g", 1.0),
         ("10kg g", 10000.0),
@@ -42,6 +40,6 @@ fn weight_conversion() {
         ("132.990 milligram dg", 1.3299),
         ("31 lb kilogram", 14.061363),
     ];
-    
+
     evaluate(PROBLEMS);
 }

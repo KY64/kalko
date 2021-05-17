@@ -3,11 +3,17 @@ use crate::parse::string::{is_unit, parsing, Kind};
 use std::env;
 
 pub fn parse_argument(arg: env::Args) -> String {
+    // Insert parsed argument into Vector
     let arguments: Vec<String> = arg.collect();
+    // '*' symbol is avoided because it could means
+    // 'all directory' therefore 'x' is used for
+    // multiplitcation to avoid ambiguity
     if let Some(_) = arguments.iter().position(|x| x.contains("*")) {
         eprintln!("Problem parsing argument: try replace '*' with 'x' for multiplication");
         std::process::exit(1);
     }
+
+    // Clone argument vector as it will be modified
     let mut parsed_argument: String = arguments[0].clone();
 
     // When writing formula without whitespace
@@ -20,13 +26,13 @@ pub fn parse_argument(arg: env::Args) -> String {
     else if arguments.len() > 2 {
         // Empty string before concatenate with the new String object
         parsed_argument.clear();
-        // Concate all arguments into String object
+        // Concatenate all arguments into String object
         for (count, string) in (arguments.iter()).enumerate() {
             // Skip first argument since it's the command
             // to execute program
             if count != 0 {
                 if is_unit(string) {
-                    // Add whitespace for unit measurement for convenience
+                    // Add whitespace if unit measurement for further
                     // parsing
                     parsed_argument += format!(" {}", string).as_str();
                 } else {
