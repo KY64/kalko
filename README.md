@@ -49,7 +49,7 @@ Kalko is a command-line based calculator with unit conversion feature. Kalko is 
 * Manual
   
   ```sh
-  git clone https://
+  git clone https://github.com/KY64/kalko.git
   cd kalko
   cargo build --release
   sudo ln -s $(pwd)/target/release/kalko /usr/local/bin/kalko
